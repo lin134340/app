@@ -1,0 +1,6 @@
+<resources>
+   <declare-styleable name="TestView">
+       <attr name="attr1" format="boolean" />
+   </declare-styleable>
+</resources>
+
