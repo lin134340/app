@@ -1,6 +1,7 @@
 <resources>
    <declare-styleable name="TestView">
-       <attr name="attr1" format="boolean" />
+       <attr name="width" format="float" />
+       <attr name="height" format="float" />
    </declare-styleable>
 </resources>
 

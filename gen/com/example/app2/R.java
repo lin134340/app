@@ -9,14 +9,22 @@ package com.example.app2;
 
 public final class R {
     public static final class attr {
-        /** <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
-        public static final int attr1=0x7f010000;
+        public static final int height=0x7f010001;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int width=0x7f010000;
     }
     public static final class dimen {
         /**  Default screen margins, per the Android Design guidelines. 
@@ -32,7 +40,13 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f080000;
+        public static final int action_settings=0x7f080006;
+        public static final int b1=0x7f080001;
+        public static final int b2=0x7f080002;
+        public static final int s1=0x7f080003;
+        public static final int s2=0x7f080004;
+        public static final int s3=0x7f080005;
+        public static final int t1=0x7f080000;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -80,26 +94,42 @@ containing a value of this type.
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
-           <tr><td><code>{@link #TestView_attr1 com.example.app2:attr1}</code></td><td></td></tr>
+           <tr><td><code>{@link #TestView_height com.example.app2:height}</code></td><td></td></tr>
+           <tr><td><code>{@link #TestView_width com.example.app2:width}</code></td><td></td></tr>
            </table>
-           @see #TestView_attr1
+           @see #TestView_height
+           @see #TestView_width
          */
         public static final int[] TestView = {
-            0x7f010000
+            0x7f010000, 0x7f010001
         };
         /**
-          <p>This symbol is the offset where the {@link com.example.app2.R.attr#attr1}
+          <p>This symbol is the offset where the {@link com.example.app2.R.attr#height}
           attribute's value can be found in the {@link #TestView} array.
 
 
-          <p>Must be a boolean value, either "<code>true</code>" or "<code>false</code>".
+          <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
 theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
-          @attr name android:attr1
+          @attr name android:height
         */
-        public static final int TestView_attr1 = 0;
+        public static final int TestView_height = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.example.app2.R.attr#width}
+          attribute's value can be found in the {@link #TestView} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:width
+        */
+        public static final int TestView_width = 0;
     };
 }
