@@ -7,7 +7,7 @@
     tools:context=".MainActivity" >
 
     <EditText
-        android:id="@+id/t1"
+        android:id="@+id/txt1"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:inputType="textMultiLine" />
@@ -18,17 +18,17 @@
         android:orientation="horizontal" >
 
         <LinearLayout
-            android:layout_width="100dp"
+            android:layout_width="70dp"
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
             <Button
-                android:id="@+id/b1"
+                android:id="@+id/btn1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/b2"
+                android:id="@+id/btn2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             
@@ -40,28 +40,14 @@
             android:orientation="vertical" >
 
             <com.example.app2.myview.TestView
-                android:id="@+id/s1"
+                android:id="@+id/pad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="1dp"
-                testview:height="30.0"
-                testview:width="50.0" />
+                testview:boardR="80.0"
+                testview:navR="50.0"
+                testview:btnPad="1" />
 
-            <com.example.app2.myview.TestView
-                android:id="@+id/s2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="1dp"
-                testview:height="40.0"
-                testview:width="50.0" />
-
-            <com.example.app2.myview.TestView
-                android:id="@+id/s3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="1dp"
-                testview:height="50.0"
-                testview:width="50.0" />
             
         </LinearLayout>
         

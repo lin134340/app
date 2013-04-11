@@ -2,6 +2,9 @@
    <declare-styleable name="TestView">
        <attr name="width" format="float" />
        <attr name="height" format="float" />
+       <attr name="boardR" format="float" />
+       <attr name="navR" format="float" />
+       <attr name="btnPad" format="float" />
    </declare-styleable>
 </resources>
 

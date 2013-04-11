@@ -16,7 +16,31 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
+        public static final int boardR=0x7f010002;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int btnPad=0x7f010004;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
         public static final int height=0x7f010001;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
+        public static final int navR=0x7f010003;
         /** <p>Must be a floating point value, such as "<code>1.2</code>".
 <p>This may also be a reference to a resource (in the form
 "<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
@@ -40,13 +64,11 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f080006;
-        public static final int b1=0x7f080001;
-        public static final int b2=0x7f080002;
-        public static final int s1=0x7f080003;
-        public static final int s2=0x7f080004;
-        public static final int s3=0x7f080005;
-        public static final int t1=0x7f080000;
+        public static final int action_settings=0x7f080004;
+        public static final int btn1=0x7f080001;
+        public static final int btn2=0x7f080002;
+        public static final int pad=0x7f080003;
+        public static final int txt1=0x7f080000;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -94,15 +116,50 @@ containing a value of this type.
            <colgroup align="left" />
            <colgroup align="left" />
            <tr><th>Attribute</th><th>Description</th></tr>
+           <tr><td><code>{@link #TestView_boardR com.example.app2:boardR}</code></td><td></td></tr>
+           <tr><td><code>{@link #TestView_btnPad com.example.app2:btnPad}</code></td><td></td></tr>
            <tr><td><code>{@link #TestView_height com.example.app2:height}</code></td><td></td></tr>
+           <tr><td><code>{@link #TestView_navR com.example.app2:navR}</code></td><td></td></tr>
            <tr><td><code>{@link #TestView_width com.example.app2:width}</code></td><td></td></tr>
            </table>
+           @see #TestView_boardR
+           @see #TestView_btnPad
            @see #TestView_height
+           @see #TestView_navR
            @see #TestView_width
          */
         public static final int[] TestView = {
-            0x7f010000, 0x7f010001
+            0x7f010000, 0x7f010001, 0x7f010002, 0x7f010003,
+            0x7f010004
         };
+        /**
+          <p>This symbol is the offset where the {@link com.example.app2.R.attr#boardR}
+          attribute's value can be found in the {@link #TestView} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:boardR
+        */
+        public static final int TestView_boardR = 2;
+        /**
+          <p>This symbol is the offset where the {@link com.example.app2.R.attr#btnPad}
+          attribute's value can be found in the {@link #TestView} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:btnPad
+        */
+        public static final int TestView_btnPad = 4;
         /**
           <p>This symbol is the offset where the {@link com.example.app2.R.attr#height}
           attribute's value can be found in the {@link #TestView} array.
@@ -117,6 +174,20 @@ containing a value of this type.
           @attr name android:height
         */
         public static final int TestView_height = 1;
+        /**
+          <p>This symbol is the offset where the {@link com.example.app2.R.attr#navR}
+          attribute's value can be found in the {@link #TestView} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:navR
+        */
+        public static final int TestView_navR = 3;
         /**
           <p>This symbol is the offset where the {@link com.example.app2.R.attr#width}
           attribute's value can be found in the {@link #TestView} array.
