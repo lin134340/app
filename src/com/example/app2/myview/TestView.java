@@ -1,7 +1,6 @@
 package com.example.app2.myview;
 
 import java.util.Vector;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -11,7 +10,6 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
-//import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.app2.R;
@@ -25,8 +23,7 @@ public class TestView extends View {
 	private Paint btnPaintGray = new Paint();
 	private Paint btnPaintRed = new Paint();
 	private Paint textPaint = new Paint();
-	private Vector<Path> btns = new Vector<Path>();
-	private Vector<float[]> texts = new Vector<float[]>();
+	private Vector<PadButton> padButton = new Vector<PadButton>();
 	private int btnOnTouch = 8;
 
 	public TestView(Context context, AttributeSet attrs) {
@@ -74,6 +71,28 @@ public class TestView extends View {
 		return angle;
 	}
 
+	// PadButton defines one of eight buttons
+	private class PadButton {
+		public Path path;
+		public TextPos textPos = new TextPos();
+		public String text;
+
+		public class TextPos {
+			public float x;
+			public float y;
+		}
+
+		public PadButton(Path p, float tPosX, float tPosY) {
+			path = new Path(p);
+			textPos.x = tPosX;
+			textPos.y = tPosY;
+		}
+
+		public void setText(String s) {
+			text = s;
+		}
+	}
+
 	// used to get the text position
 	private float[] getTextPosition(float angle) {
 		float[] pos = new float[2];
@@ -81,12 +100,6 @@ public class TestView extends View {
 		pos[0] = (float) Math.cos(phi) * (boardR + navR) / 2 + boardR;
 		pos[1] = (float) Math.sin(phi) * (boardR + navR) / 2 + boardR
 				+ textSize * 0.37f;
-
-		/*
-		 * Log.d(DEBUG_TAG, "getPosition angle:" + Float.toString(angle) + " x:"
-		 * + Float.toString(pos[0]) + " y:" + Float.toString(pos[1]));
-		 */
-
 		return pos;
 	}
 
@@ -103,24 +116,30 @@ public class TestView extends View {
 		RectF r = new RectF(0, 0, 2 * boardR, 2 * boardR);
 		RectF r2 = new RectF(boardR - navR, boardR - navR, boardR + navR,
 				boardR + navR);
+		float[] tPos;
+		PadButton pBtn;
 		for (int i = 0; i < 8; i++) {
 			p.reset();
 			p.arcTo(r, i * 45 + btnPad, 45 - 2 * btnPad, true);
 			p.arcTo(r2, (i + 1) * 45 - btnPad, -45 + 2 * btnPad);
 			p.close();
-			btns.add(new Path(p));
-			texts.add(getTextPosition((float) (22.5 + i * 45)));
+			tPos = getTextPosition((float) (22.5 + i * 45));
+			pBtn = new PadButton(p, tPos[0], tPos[1]);
+			pBtn.setText(Integer.toString(i));
+			padButton.add(pBtn);
 		}
 	}
 
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		Log.d(DEBUG_TAG, "testview ondraw start");
-		for (int i = 0; i < btns.size(); i++) {
-			canvas.drawPath(btns.elementAt(i), (i == btnOnTouch) ? btnPaintRed
+		PadButton pBtn;
+		for (int i = 0; i < padButton.size(); i++) {
+			pBtn = padButton.elementAt(i);
+			canvas.drawPath(pBtn.path, (i == btnOnTouch) ? btnPaintRed
 					: btnPaintGray);
-			canvas.drawText(Integer.toString(i), texts.elementAt(i)[0],
-					texts.elementAt(i)[1], textPaint);
+			canvas.drawText(pBtn.text, pBtn.textPos.x, pBtn.textPos.y,
+					textPaint);
 		}
 		Log.d(DEBUG_TAG, "testview ondraw end");
 	}

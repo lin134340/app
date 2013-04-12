@@ -7,3 +7,4 @@ project.properties
 bin/
 gen/
 libs/
+*.swp
