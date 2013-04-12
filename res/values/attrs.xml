@@ -5,6 +5,7 @@
        <attr name="boardR" format="float" />
        <attr name="navR" format="float" />
        <attr name="btnPad" format="float" />
+       <attr name="textSize" format="float" />
    </declare-styleable>
 </resources>
 

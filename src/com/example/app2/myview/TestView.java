@@ -11,21 +11,22 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
+//import android.view.MotionEvent;
 import android.view.View;
 
 import com.example.app2.R;
 
 public class TestView extends View {
 	private final String DEBUG_TAG = "mytest";
-	private float boardR = 10.0f;
-	private float navR = 7.0f;
-	private float btnPad = 0.1f;
+	private float boardR = 80.0f;
+	private float navR = 50.0f;
+	private float btnPad = 1.0f;
+	private float textSize = 8.0f;
 	private Paint btnPaintGray = new Paint();
 	private Paint btnPaintRed = new Paint();
-	// private Paint mNavPaint = new Paint();
-	// private Paint mLinePaint = new Paint();
+	private Paint textPaint = new Paint();
 	private Vector<Path> btns = new Vector<Path>();
+	private Vector<float[]> texts = new Vector<float[]>();
 	private int btnOnTouch = 8;
 
 	public TestView(Context context, AttributeSet attrs) {
@@ -34,9 +35,10 @@ public class TestView extends View {
 		TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
 				R.styleable.TestView, 0, 0);
 		try {
-			boardR = a.getFloat(R.styleable.TestView_boardR, 10.0f);
-			navR = a.getFloat(R.styleable.TestView_navR, 7.0f);
-			btnPad = a.getFloat(R.styleable.TestView_btnPad, 0.1f);
+			boardR = a.getFloat(R.styleable.TestView_boardR, 80.0f);
+			navR = a.getFloat(R.styleable.TestView_navR, 50.0f);
+			btnPad = a.getFloat(R.styleable.TestView_btnPad, 1.0f);
+			textSize = a.getFloat(R.styleable.TestView_textSize, 8.0f);
 		} finally {
 			a.recycle();
 		}
@@ -47,16 +49,22 @@ public class TestView extends View {
 	// if btnOnTouch is between 0 to 7, one of the eight buttons is being
 	// pressed down
 	// else none button is being pressed down
-	public void setbtnOnTouch(int b) {
+	public void setBtnOnTouch(int b) {
 		btnOnTouch = b;
 		invalidate();
 	}
 
+	public int getBtnOnTouch() {
+		return btnOnTouch;
+	}
+
+	// get the distance between a point and the pad center
 	public float getDistance(float x, float y) {
 		return (float) Math.sqrt((x - boardR) * (x - boardR) + (y - boardR)
 				* (y - boardR));
 	}
 
+	// get the angle of a point from pad center
 	public float getAngle(float x, float y) {
 		float angle = (float) Math
 				.toDegrees(Math.atan2(y - boardR, x - boardR));
@@ -66,14 +74,30 @@ public class TestView extends View {
 		return angle;
 	}
 
+	// used to get the text position
+	private float[] getTextPosition(float angle) {
+		float[] pos = new float[2];
+		double phi = Math.toRadians(angle);
+		pos[0] = (float) Math.cos(phi) * (boardR + navR) / 2 + boardR;
+		pos[1] = (float) Math.sin(phi) * (boardR + navR) / 2 + boardR
+				+ textSize * 0.37f;
+
+		/*
+		 * Log.d(DEBUG_TAG, "getPosition angle:" + Float.toString(angle) + " x:"
+		 * + Float.toString(pos[0]) + " y:" + Float.toString(pos[1]));
+		 */
+
+		return pos;
+	}
+
 	private void init() {
 		setBackgroundColor(Color.LTGRAY);
 		btnPaintGray.setColor(Color.GRAY);
 		btnPaintRed.setColor(Color.RED);
+		textPaint.setColor(Color.WHITE);
+		textPaint.setTextAlign(Paint.Align.CENTER);
+		textPaint.setTextSize(textSize);
 		btnOnTouch = 8;
-		// mNavPaint.setColor(Color.LTGRAY);
-		// mLinePaint.setColor(Color.LTGRAY);
-		// mLinePaint.setStyle(Paint.Style.STROKE);
 
 		Path p = new Path();
 		RectF r = new RectF(0, 0, 2 * boardR, 2 * boardR);
@@ -85,6 +109,7 @@ public class TestView extends View {
 			p.arcTo(r2, (i + 1) * 45 - btnPad, -45 + 2 * btnPad);
 			p.close();
 			btns.add(new Path(p));
+			texts.add(getTextPosition((float) (22.5 + i * 45)));
 		}
 	}
 
@@ -94,6 +119,8 @@ public class TestView extends View {
 		for (int i = 0; i < btns.size(); i++) {
 			canvas.drawPath(btns.elementAt(i), (i == btnOnTouch) ? btnPaintRed
 					: btnPaintGray);
+			canvas.drawText(Integer.toString(i), texts.elementAt(i)[0],
+					texts.elementAt(i)[1], textPaint);
 		}
 		Log.d(DEBUG_TAG, "testview ondraw end");
 	}
@@ -141,28 +168,4 @@ public class TestView extends View {
 		Log.d(DEBUG_TAG, "testview onmeasure end");
 	}
 
-	public boolean onTouchEvent(MotionEvent ev) {
-		int a = ev.getActionMasked();
-		// the x,y value is the relative value to testview
-		int x = (int) ev.getX();
-		int y = (int) ev.getY();
-		Log.d(DEBUG_TAG,
-				"testview a:" + Integer.toString(a) + " x:"
-						+ Integer.toString(x) + " y:" + Integer.toString(y));
-		float dis = getDistance(x, y);
-		float ang = getAngle(x, y);
-		int btnDown = (dis > 50 && dis < 80) ? ((int) ang / 45) : (8);
-		Log.d(DEBUG_TAG, "testview dis:" + Float.toString(dis) + " ang:"
-				+ Float.toString(ang) + " btnDown:" + Integer.toString(btnDown));
-
-		if (a == MotionEvent.ACTION_DOWN || a == MotionEvent.ACTION_MOVE) {
-			if (btnOnTouch != btnDown) {
-				setbtnOnTouch(btnDown);
-			}
-		} else if (a == MotionEvent.ACTION_UP) {
-			setbtnOnTouch(8);
-		}
-
-		return true;
-	}
 }

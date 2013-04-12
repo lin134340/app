@@ -48,6 +48,14 @@ theme attribute (in the form
 "<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
 containing a value of this type.
          */
+        public static final int textSize=0x7f010005;
+        /** <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+         */
         public static final int width=0x7f010000;
     }
     public static final class dimen {
@@ -68,7 +76,7 @@ containing a value of this type.
         public static final int btn1=0x7f080001;
         public static final int btn2=0x7f080002;
         public static final int pad=0x7f080003;
-        public static final int txt1=0x7f080000;
+        public static final int txt=0x7f080000;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -120,17 +128,19 @@ containing a value of this type.
            <tr><td><code>{@link #TestView_btnPad com.example.app2:btnPad}</code></td><td></td></tr>
            <tr><td><code>{@link #TestView_height com.example.app2:height}</code></td><td></td></tr>
            <tr><td><code>{@link #TestView_navR com.example.app2:navR}</code></td><td></td></tr>
+           <tr><td><code>{@link #TestView_textSize com.example.app2:textSize}</code></td><td></td></tr>
            <tr><td><code>{@link #TestView_width com.example.app2:width}</code></td><td></td></tr>
            </table>
            @see #TestView_boardR
            @see #TestView_btnPad
            @see #TestView_height
            @see #TestView_navR
+           @see #TestView_textSize
            @see #TestView_width
          */
         public static final int[] TestView = {
             0x7f010000, 0x7f010001, 0x7f010002, 0x7f010003,
-            0x7f010004
+            0x7f010004, 0x7f010005
         };
         /**
           <p>This symbol is the offset where the {@link com.example.app2.R.attr#boardR}
@@ -188,6 +198,20 @@ containing a value of this type.
           @attr name android:navR
         */
         public static final int TestView_navR = 3;
+        /**
+          <p>This symbol is the offset where the {@link com.example.app2.R.attr#textSize}
+          attribute's value can be found in the {@link #TestView} array.
+
+
+          <p>Must be a floating point value, such as "<code>1.2</code>".
+<p>This may also be a reference to a resource (in the form
+"<code>@[<i>package</i>:]<i>type</i>:<i>name</i></code>") or
+theme attribute (in the form
+"<code>?[<i>package</i>:][<i>type</i>:]<i>name</i></code>")
+containing a value of this type.
+          @attr name android:textSize
+        */
+        public static final int TestView_textSize = 5;
         /**
           <p>This symbol is the offset where the {@link com.example.app2.R.attr#width}
           attribute's value can be found in the {@link #TestView} array.
