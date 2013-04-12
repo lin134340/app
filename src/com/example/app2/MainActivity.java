@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
 		pad.setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent ev) {
 				int action = ev.getActionMasked();
-				// the x,y value is the relative value to testview
+				// the x,y value is the relative value to TestView
 				int x = (int) ev.getX();
 				int y = (int) ev.getY();
 				Log.d(DEBUG_TAG,

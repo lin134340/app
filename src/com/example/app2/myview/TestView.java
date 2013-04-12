@@ -93,7 +93,7 @@ public class TestView extends View {
 		}
 	}
 
-	// used to get the text position
+	// used to get the position of the text on padButton
 	private float[] getTextPosition(float angle) {
 		float[] pos = new float[2];
 		double phi = Math.toRadians(angle);
