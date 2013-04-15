@@ -24,6 +24,8 @@ public class TestView extends View {
 	private Paint btnPaintRed = new Paint();
 	private Paint textPaint = new Paint();
 	private Vector<PadButton> padButton = new Vector<PadButton>();
+	public TouchPosition ptPos;
+	public TouchPosition tPos;
 	private int btnOnTouch = 8;
 
 	public TestView(Context context, AttributeSet attrs) {
@@ -43,9 +45,9 @@ public class TestView extends View {
 		Log.d(DEBUG_TAG, "testview constructor end");
 	}
 
-	// if btnOnTouch is between 0 to 7, one of the eight buttons is being
-	// pressed down
-	// else none button is being pressed down
+	// If btnOnTouch is between 0 to 7, one of the eight buttons is being
+	// pressed down.
+	// Else none button is being pressed down.
 	public void setBtnOnTouch(int b) {
 		btnOnTouch = b;
 		invalidate();
@@ -55,16 +57,14 @@ public class TestView extends View {
 		return btnOnTouch;
 	}
 
-	// get the distance between a point and the pad center
-	public float getDistance(float x, float y) {
-		return (float) Math.sqrt((x - boardR) * (x - boardR) + (y - boardR)
-				* (y - boardR));
+	public float getDistance(float x1, float y1, float x2, float y2) {
+		return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 	}
 
 	// get the angle of a point from pad center
-	public float getAngle(float x, float y) {
-		float angle = (float) Math
-				.toDegrees(Math.atan2(y - boardR, x - boardR));
+	public float getAngle(float x1, float y1, float x2, float y2) {
+		// float toPoint = toCenter ? boardR : 0;
+		float angle = (float) Math.toDegrees(Math.atan2(y1 - y2, x1 - x2));
 		if (angle < 0) {
 			angle += 360;
 		}
@@ -90,6 +90,47 @@ public class TestView extends View {
 
 		public void setText(String s) {
 			text = s;
+		}
+	}
+
+	public MoveDirection getDirection() {
+		float ang = getAngle(tPos.y, tPos.x, ptPos.y, ptPos.x);
+		float dis = getDistance(tPos.y, tPos.x, ptPos.y, ptPos.x);
+		Log.d(DEBUG_TAG,"ang:"+Float.toString(ang)+" dis:"+Float.toString(dis));
+		if (dis > 5) {
+			if (ang > 0 && ang < 45 || ang > 315 && ang < 360) {
+				return MoveDirection.DOWN;
+			} else if (ang > 45 && ang < 135) {
+				return MoveDirection.RIGHT;
+			} else if (ang > 135 && ang < 225) {
+				return MoveDirection.UP;
+			} else if (ang > 225 && ang < 315) {
+				return MoveDirection.LEFT;
+			} else {
+				// Log.d(DEBUG_TAG, "don't move");
+				return null;
+			}
+		}else{
+			return null;
+		}
+
+	}
+
+	public enum MoveDirection {
+		LEFT, UP, RIGHT, DOWN
+	}
+
+	public class TouchPosition {
+		public float x;
+		public float y;
+		public float dis;
+		public float ang;
+
+		public TouchPosition(float x, float y) {
+			this.x = x;
+			this.y = y;
+			dis = getDistance(x, y, boardR, boardR);
+			ang = getAngle(x, y, boardR, boardR);
 		}
 	}
 
