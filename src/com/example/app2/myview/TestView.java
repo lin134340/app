@@ -4,7 +4,7 @@ import java.util.Vector;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
+//import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -16,16 +16,19 @@ import com.example.app2.R;
 
 public class TestView extends View {
 	private final String DEBUG_TAG = "mytest";
-	private float boardR = 80.0f;
-	private float navR = 50.0f;
+	public float boardR = 80.0f;
+	public float navR = 50.0f;
 	private float btnPad = 1.0f;
 	private float textSize = 8.0f;
-	private Paint btnPaintGray = new Paint();
-	private Paint btnPaintRed = new Paint();
+	private Paint btnPaintNormal = new Paint();
+	private Paint btnPaintDown = new Paint();
+	private Paint btnPaintCast = new Paint();
 	private Paint textPaint = new Paint();
-	private Vector<PadButton> padButton = new Vector<PadButton>();
+	public Vector<Vector<PadButton>> padButtons = new Vector<Vector<PadButton>>();
 	public TouchPosition ptPos;
 	public TouchPosition tPos;
+	public BtnGroup[] btnGroup = new BtnGroup[8];
+	public int btnOnCast = 8;
 	private int btnOnTouch = 8;
 
 	public TestView(Context context, AttributeSet attrs) {
@@ -57,6 +60,19 @@ public class TestView extends View {
 		return btnOnTouch;
 	}
 
+	// If btnOnCast is between 0 to 7, one of the eight buttons is casting.
+	// Else none button is casting.
+	public void setBtnOnCast(int b) {
+		btnOnCast = b;
+		if (btnOnCast == 8) {
+			invalidate();
+		}
+	}
+
+	public int getBtnOnCast() {
+		return btnOnCast;
+	}
+
 	public float getDistance(float x1, float y1, float x2, float y2) {
 		return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 	}
@@ -71,32 +87,11 @@ public class TestView extends View {
 		return angle;
 	}
 
-	// PadButton defines one of eight buttons
-	private class PadButton {
-		public Path path;
-		public TextPos textPos = new TextPos();
-		public String text;
-
-		public class TextPos {
-			public float x;
-			public float y;
-		}
-
-		public PadButton(Path p, float tPosX, float tPosY) {
-			path = new Path(p);
-			textPos.x = tPosX;
-			textPos.y = tPosY;
-		}
-
-		public void setText(String s) {
-			text = s;
-		}
-	}
-
 	public MoveDirection getDirection() {
 		float ang = getAngle(tPos.y, tPos.x, ptPos.y, ptPos.x);
 		float dis = getDistance(tPos.y, tPos.x, ptPos.y, ptPos.x);
-		Log.d(DEBUG_TAG,"ang:"+Float.toString(ang)+" dis:"+Float.toString(dis));
+		Log.d(DEBUG_TAG,
+				"ang:" + Float.toString(ang) + " dis:" + Float.toString(dis));
 		if (dis > 5) {
 			if (ang > 0 && ang < 45 || ang > 315 && ang < 360) {
 				return MoveDirection.DOWN;
@@ -110,10 +105,63 @@ public class TestView extends View {
 				// Log.d(DEBUG_TAG, "don't move");
 				return null;
 			}
-		}else{
+		} else {
+			return null;
+		}
+	}
+
+	// PadButton defines one of eight buttons
+	private class PadButton {
+		public int num;
+		public Path path;
+		public TextPos textPos = new TextPos();
+		public String text;
+
+		public class TextPos {
+			public float x;
+			public float y;
+		}
+
+		public PadButton(Path p, int n, float tPosX, float tPosY) {
+			path = new Path(p);
+			num = n;
+			textPos.x = tPosX;
+			textPos.y = tPosY;
+		}
+
+		public void setText(String s) {
+			text = s;
+		}
+	}
+
+	public class BtnGroup {
+		public Vector<SubBtn> subBtn;
+
+		public BtnGroup(Object... p) {
+			subBtn = new Vector<SubBtn>();
+			for (int i = 0; i < p.length; i += 2) {
+				subBtn.add(new SubBtn((String) p[i], (Integer) p[i + 1]));
+			}
+		}
+
+		public String getStrByNum(int n) {
+			for (int i = 0; i < subBtn.size(); i++) {
+				if (subBtn.elementAt(i).bNum == n) {
+					return subBtn.elementAt(i).bString;
+				}
+			}
 			return null;
 		}
 
+		public class SubBtn {
+			public int bNum;
+			public String bString;
+
+			public SubBtn(String s, int i) {
+				bNum = i;
+				bString = s;
+			}
+		}
 	}
 
 	public enum MoveDirection {
@@ -125,12 +173,14 @@ public class TestView extends View {
 		public float y;
 		public float dis;
 		public float ang;
+		public int btnNum;
 
 		public TouchPosition(float x, float y) {
 			this.x = x;
 			this.y = y;
 			dis = getDistance(x, y, boardR, boardR);
 			ang = getAngle(x, y, boardR, boardR);
+			btnNum = (dis > 50 && dis < 80) ? ((int) ang / 45) : (8);
 		}
 	}
 
@@ -145,40 +195,82 @@ public class TestView extends View {
 	}
 
 	private void init() {
-		setBackgroundColor(Color.LTGRAY);
-		btnPaintGray.setColor(Color.GRAY);
-		btnPaintRed.setColor(Color.RED);
-		textPaint.setColor(Color.WHITE);
+		setBackgroundColor(0xffcccccc);
+		btnPaintNormal.setColor(0xff888888);
+		btnPaintDown.setColor(0xffff0000);
+		btnPaintCast.setColor(0xffaaaaaa);
+		textPaint.setColor(0xffffffff);
 		textPaint.setTextAlign(Paint.Align.CENTER);
 		textPaint.setTextSize(textSize);
+		btnOnCast = 8;
 		btnOnTouch = 8;
-
+		// Log.d(DEBUG_TAG, "1");
+		btnGroup[0] = new BtnGroup("h", 7, "i", 0, "j", 1);
+		btnGroup[1] = new BtnGroup("k", 0, "l", 1, "m", 2);
+		btnGroup[2] = new BtnGroup("n", 1, "o", 2, "p", 3, "q", 4);
+		btnGroup[3] = new BtnGroup("r", 2, "s", 3, "t", 4);
+		btnGroup[4] = new BtnGroup("u", 3, "v", 4, "w", 5);
+		btnGroup[5] = new BtnGroup("x", 4, "y", 5, "z", 6);
+		btnGroup[6] = new BtnGroup("a", 5, "b", 6, "c", 7, "d", 0);
+		btnGroup[7] = new BtnGroup("e", 6, "f", 7, "g", 0);
+		// Log.d(DEBUG_TAG, "2");
 		Path p = new Path();
 		RectF r = new RectF(0, 0, 2 * boardR, 2 * boardR);
 		RectF r2 = new RectF(boardR - navR, boardR - navR, boardR + navR,
 				boardR + navR);
-		float[] tPos;
+		float[] textPos;
 		PadButton pBtn;
+		for (int i = 0; i < 8; i++) {
+			// Log.d(DEBUG_TAG, "2." + Integer.toString(i));
+			padButtons.add(new Vector<PadButton>());
+			for (int j = 0; j < btnGroup[i].subBtn.size(); j++) {
+				// Log.d(DEBUG_TAG,
+				// "2." + Integer.toString(i) + "." + Integer.toString(j));
+				int bn = btnGroup[i].subBtn.elementAt(j).bNum;
+				String bs = btnGroup[i].subBtn.elementAt(j).bString;
+				// Log.d(DEBUG_TAG, "a");
+				p.reset();
+				p.arcTo(r, bn * 45 + btnPad, 45 - 2 * btnPad, true);
+				p.arcTo(r2, (bn + 1) * 45 - btnPad, -45 + 2 * btnPad);
+				p.close();
+				textPos = getTextPosition((float) (22.5 + bn * 45));
+				// Log.d(DEBUG_TAG, "b");
+				pBtn = new PadButton(p, bn, textPos[0], textPos[1]);
+				// Log.d(DEBUG_TAG, "c");
+				pBtn.setText(bs);
+				// Log.d(DEBUG_TAG, "d");
+				padButtons.elementAt(i).add(pBtn);
+			}
+		}
+		// Log.d(DEBUG_TAG, "3");
+		padButtons.add(new Vector<PadButton>());
 		for (int i = 0; i < 8; i++) {
 			p.reset();
 			p.arcTo(r, i * 45 + btnPad, 45 - 2 * btnPad, true);
 			p.arcTo(r2, (i + 1) * 45 - btnPad, -45 + 2 * btnPad);
 			p.close();
-			tPos = getTextPosition((float) (22.5 + i * 45));
-			pBtn = new PadButton(p, tPos[0], tPos[1]);
-			pBtn.setText(Integer.toString(i));
-			padButton.add(pBtn);
+			textPos = getTextPosition((float) (22.5 + i * 45));
+			pBtn = new PadButton(p, i, textPos[0], textPos[1]);
+			String bs = new String();
+			for (int j = 0; j < btnGroup[i].subBtn.size(); j++) {
+				bs += btnGroup[i].subBtn.elementAt(j).bString;
+			}
+			pBtn.setText(bs);
+			padButtons.elementAt(8).add(pBtn);
 		}
+
 	}
 
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		Log.d(DEBUG_TAG, "testview ondraw start");
 		PadButton pBtn;
-		for (int i = 0; i < padButton.size(); i++) {
-			pBtn = padButton.elementAt(i);
-			canvas.drawPath(pBtn.path, (i == btnOnTouch) ? btnPaintRed
-					: btnPaintGray);
+		for (int i = 0; i < padButtons.elementAt(btnOnCast).size(); i++) {
+			pBtn = padButtons.elementAt(btnOnCast).elementAt(i);
+			canvas.drawPath(
+					pBtn.path,
+					(btnOnCast >= 0 && btnOnCast <= 7 && pBtn.num == btnOnTouch) ? btnPaintDown
+							: btnPaintNormal);
 			canvas.drawText(pBtn.text, pBtn.textPos.x, pBtn.textPos.y,
 					textPaint);
 		}

@@ -47,7 +47,7 @@
                 testview:boardR="80.0"
                 testview:navR="50.0"
                 testview:btnPad="1.0"
-                testview:textSize="18.0" />
+                testview:textSize="12.0" />
 
             
         </LinearLayout>

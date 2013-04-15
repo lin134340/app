@@ -2,7 +2,7 @@ package com.example.app2;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.Layout;
+//import android.text.Layout;
 import android.text.Selection;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -38,8 +38,8 @@ public class MainActivity extends Activity {
 				if (action == MotionEvent.ACTION_DOWN) {
 					pad.ptPos = pad.tPos;
 				}
-				int btnDown = (pad.tPos.dis > 50 && pad.tPos.dis < 80) ? ((int) pad.tPos.ang / 45)
-						: (8);
+				int btnDown = pad.tPos.btnNum;
+				int pbtnDown = pad.ptPos.btnNum;
 				Log.d(DEBUG_TAG,
 						"ontouch action:" + Integer.toString(action) + " x:"
 								+ Float.toString(pad.tPos.x) + " y:"
@@ -48,22 +48,25 @@ public class MainActivity extends Activity {
 								+ Float.toString(pad.tPos.ang) + " btnDown:"
 								+ Integer.toString(btnDown));
 
+				//touch event state
 				Log.d(DEBUG_TAG, "ontouch touchstate_before:" + touchState);
 				if (touchState.equals(TouchState.NOTOUCH)) {
 					if (action == MotionEvent.ACTION_DOWN) {
-						if (pad.tPos.dis < 50) {
+						if (pad.tPos.dis < pad.navR) {
 							// skip long press
 							setTouchState(TouchState.NAV);
-						} else if (pad.tPos.dis > 50 && pad.tPos.dis < 80) {
-							// on button process
-							// cast
-							// setTouchState(TouchState.CAST);
+						} else if (pad.tPos.dis > pad.navR
+								&& pad.tPos.dis < pad.boardR) {
+							pad.setBtnOnCast(btnDown);
+							pad.setBtnOnTouch(btnDown);
+							setTouchState(TouchState.CAST);
 						} else {
 							setTouchState(TouchState.INVALID);
 						}
 					}
 				} else if (touchState.equals(TouchState.INVALID)) {
 					if (action == MotionEvent.ACTION_UP) {
+						
 						setTouchState(TouchState.NOTOUCH);
 					}
 				} else if (touchState.equals(TouchState.INTONAV)) {
@@ -93,25 +96,52 @@ public class MainActivity extends Activity {
 				} else if (touchState.equals(TouchState.DBCLICK)) {
 
 				} else if (touchState.equals(TouchState.CAST)) {
+					if (action == MotionEvent.ACTION_UP) {
+						txt.append(pad.btnGroup[pad.btnOnCast]
+								.getStrByNum(btnDown));
+						pad.setBtnOnCast(8);
+						setTouchState(TouchState.NOTOUCH);
+					} else if (action == MotionEvent.ACTION_MOVE) {
+						if (pad.tPos.dis < pad.navR) {
+							txt.append(pad.btnGroup[pad.btnOnCast]
+									.getStrByNum(pbtnDown));
+							pad.setBtnOnCast(8);
+							//pad.setBtnOnTouch(8);
+							setTouchState(TouchState.WAITNEXTBTN);
+						} else if (pad.tPos.dis > pad.navR
+								&& pad.tPos.dis < pad.boardR
+								&& pad.btnGroup[pad.btnOnCast]
+										.getStrByNum(btnDown) != null) {
+							if (pad.getBtnOnTouch() != btnDown) {
+								pad.setBtnOnTouch(btnDown);
+							}
+						} else {
+							pad.setBtnOnCast(8);
+							setTouchState(TouchState.INVALID);
+						}
+					}
 
 				} else if (touchState.equals(TouchState.WAITNEXTBTN)) {
-
+					if (action == MotionEvent.ACTION_UP) {
+						setTouchState(TouchState.NOTOUCH);
+					} else if(action==MotionEvent.ACTION_MOVE){
+						if(pad.tPos.dis>pad.navR&&pad.tPos.dis < pad.boardR){
+							pad.setBtnOnCast(btnDown);
+							pad.setBtnOnTouch(btnDown);
+							setTouchState(TouchState.CAST);
+						}
+					}
 				}
 				Log.d(DEBUG_TAG, "ontouch touchstate_after:" + touchState);
 
-				if (action == MotionEvent.ACTION_DOWN
-						|| action == MotionEvent.ACTION_MOVE) {
-					if (pad.getBtnOnTouch() != btnDown) {
-						pad.setBtnOnTouch(btnDown);
-						if (btnDown >= 0 && btnDown <= 7) {
-							txt.append(Integer.toString(btnDown));
-						}
-					}
-				} else if (action == MotionEvent.ACTION_UP) {
-					if (pad.getBtnOnTouch() != 8) {
-						pad.setBtnOnTouch(8);
-					}
-				}
+				/*
+				 * if (action == MotionEvent.ACTION_DOWN || action ==
+				 * MotionEvent.ACTION_MOVE) { if (pad.getBtnOnTouch() !=
+				 * btnDown) { pad.setBtnOnTouch(btnDown); if (btnDown >= 0 &&
+				 * btnDown <= 7) { txt.append(Integer.toString(btnDown)); } } }
+				 * else if (action == MotionEvent.ACTION_UP) { if
+				 * (pad.getBtnOnTouch() != 8) { pad.setBtnOnTouch(8); } }
+				 */
 
 				if (action == MotionEvent.ACTION_MOVE) {
 					pad.ptPos = pad.tPos;
