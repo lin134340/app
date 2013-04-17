@@ -1,5 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:testview="http://schemas.android.com/apk/res/com.example.app2"
+    xmlns:padview="http://schemas.android.com/apk/res/com.slide"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -25,7 +25,8 @@
             <Button
                 android:id="@+id/btn1"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="@string/backspace" />
 
             <Button
                 android:id="@+id/btn2"
@@ -39,15 +40,15 @@
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
-            <com.example.app2.myview.TestView
+            <slide.view.PadView
                 android:id="@+id/pad"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="1dp"
-                testview:boardR="80.0"
-                testview:navR="50.0"
-                testview:btnPad="1.0"
-                testview:textSize="12.0" />
+                padview:boardR="80.0"
+                padview:navR="50.0"
+                padview:btnPad="1.0"
+                padview:textSize="12.0" />
 
             
         </LinearLayout>

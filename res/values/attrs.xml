@@ -1,5 +1,5 @@
 <resources>
-   <declare-styleable name="TestView">
+   <declare-styleable name="PadView">
        <attr name="width" format="float" />
        <attr name="height" format="float" />
        <attr name="boardR" format="float" />

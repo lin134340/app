@@ -4,5 +4,6 @@
     <string name="app_name">app2</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="backspace">←</string>
 
 </resources>
