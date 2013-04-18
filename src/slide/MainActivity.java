@@ -48,15 +48,17 @@ public class MainActivity extends Activity {
 				if (action == MotionEvent.ACTION_DOWN) {
 					pad.ptPos = pad.tPos;
 				}
-				int btnDown = pad.tPos.btnNum;
-				int pbtnDown = pad.ptPos.btnNum;
+				int btnDown = pad.tPos.btnId;
+				// int pbtnDown = pad.ptPos.btnId;
 				Log.d(DEBUG_TAG,
 						"ontouch action:" + Integer.toString(action) + " x:"
 								+ Float.toString(pad.tPos.x) + " y:"
-								+ Float.toString(pad.tPos.y) + "dis:"
+								+ Float.toString(pad.tPos.y) + " dis:"
 								+ Float.toString(pad.tPos.dis) + " ang:"
-								+ Float.toString(pad.tPos.ang) + " btnDown:"
-								+ Integer.toString(btnDown));
+								+ Float.toString(pad.tPos.ang));
+				Log.d(DEBUG_TAG, "btnDown:" + Integer.toString(btnDown)
+						+ " btnText:" + pad.tPos.btnText + " corner:"
+						+ pad.tPos.corner);
 
 				// touch event state
 				Log.d(DEBUG_TAG, "ontouch touchstate_before:" + touchState);
@@ -70,6 +72,12 @@ public class MainActivity extends Activity {
 							pad.setBtnOnCast(btnDown);
 							pad.setBtnOnTouch(btnDown);
 							setTouchState(TouchState.CAST);
+						} else if (pad.tPos.corner == 1) {
+							pad.setNumerEnalbe(!pad.getNumberEnalbe());
+						} else if (pad.tPos.corner == 2) {
+							pad.setUpperEnalbe(!pad.getUpperEnalbe());
+						} else if (pad.tPos.corner == 4) {
+							deleteChr();
 						} else {
 							setTouchState(TouchState.INVALID);
 						}
@@ -107,29 +115,26 @@ public class MainActivity extends Activity {
 
 				} else if (touchState.equals(TouchState.CAST)) {
 					if (action == MotionEvent.ACTION_UP) {
-						insertChr(pad.btnGroup[pad.getBtnOnCast()]
-								.getStrByNum(btnDown));
-						pad.setBtnOnCast(8);
+						// Log.d(DEBUG_TAG, "123123" + pad.tPos.btnText);
+						insertChr(pad.tPos.btnText);
+						pad.setBtnOnCast(pad.getSetN());
 						setTouchState(TouchState.NOTOUCH);
 					} else if (action == MotionEvent.ACTION_MOVE) {
 						if (pad.tPos.dis < pad.navR) {
-							insertChr(pad.btnGroup[pad.getBtnOnCast()]
-									.getStrByNum(pbtnDown));
-							pad.setBtnOnCast(8);
+							insertChr(pad.ptPos.btnText);
+							pad.setBtnOnCast(pad.getSetN());
 							setTouchState(TouchState.WAITNEXTBTN);
 						} else if (pad.tPos.dis > pad.navR
 								&& pad.tPos.dis < pad.boardR
-								&& pad.btnGroup[pad.getBtnOnCast()]
-										.getStrByNum(btnDown) != null) {
+								&& pad.tPos.btnText != null) {
 							if (pad.getBtnOnTouch() != btnDown) {
 								pad.setBtnOnTouch(btnDown);
 							}
 						} else {
-							pad.setBtnOnCast(8);
+							pad.setBtnOnCast(pad.getSetN());
 							setTouchState(TouchState.INVALID);
 						}
 					}
-
 				} else if (touchState.equals(TouchState.WAITNEXTBTN)) {
 					if (action == MotionEvent.ACTION_UP) {
 						setTouchState(TouchState.NOTOUCH);
@@ -156,7 +161,8 @@ public class MainActivity extends Activity {
 	public void deleteChr() {
 		int start = txt.getSelectionStart();
 		int end = txt.getSelectionEnd();
-		txt.getText().delete((start == end) ? (start - 1) : start, end);
+		txt.getText().delete(
+				(start == end && start != 0) ? (start - 1) : start, end);
 	}
 
 	public void insertChr(String s) {
@@ -170,7 +176,6 @@ public class MainActivity extends Activity {
 		Log.d(DEBUG_TAG, "onWindowFocusChanged");
 		titleAndStatusHeight = getWindow().findViewById(
 				Window.ID_ANDROID_CONTENT).getTop();
-
 	}
 
 	public boolean onTouchEvent(MotionEvent ev) {

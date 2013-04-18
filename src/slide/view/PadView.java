@@ -1,6 +1,12 @@
 package slide.view;
 
 import java.util.Vector;
+
+import slide.data.BtnDefine;
+import slide.data.BtnDisplay;
+import slide.data.CornerBtn;
+import slide.data.Display;
+import slide.data.SetDisplay;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -19,20 +25,27 @@ public class PadView extends View {
 	public float navR = 50.0f;
 	private float btnPad = 1.0f;
 	private float textSize = 8.0f;
+	private float corPad = 30.0f;
 	private Paint btnPaintNormal = new Paint();
 	private Paint btnPaintDown = new Paint();
 	private Paint btnPaintCast = new Paint();
 	private Paint textPaint = new Paint();
-	public Vector<Vector<PadButton>> padButtons = new Vector<Vector<PadButton>>();
+	private Paint cornerEnablePaint = new Paint();
+	private Paint cornerUnenablePaint = new Paint();
+	public Display disp = new Display();
 	public TouchPosition ptPos;
 	public TouchPosition tPos;
-	public BtnGroup[] btnGroup = new BtnGroup[8];
-	private int btnOnCast = 8;
-	private int btnOnTouch = 8;
+	private int setN;
+	// private boolean chineseEnalbe;
+	// private boolean charEnalbe;
+	private boolean upperEnable;
+	private boolean numberEnable;
+	private int btnOnCast;
+	private int btnOnTouch;
 
 	public PadView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		Log.d(DEBUG_TAG, "testview constructor start");
+		Log.d(DEBUG_TAG, "padview constructor start");
 		TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
 				R.styleable.PadView, 0, 0);
 		try {
@@ -40,16 +53,39 @@ public class PadView extends View {
 			navR = a.getFloat(R.styleable.PadView_navR, 50.0f);
 			btnPad = a.getFloat(R.styleable.PadView_btnPad, 1.0f);
 			textSize = a.getFloat(R.styleable.PadView_textSize, 8.0f);
+			corPad = a.getFloat(R.styleable.PadView_corPad, 30.0f);
 		} finally {
 			a.recycle();
 		}
 		init();
-		Log.d(DEBUG_TAG, "testview constructor end");
+		Log.d(DEBUG_TAG, "padview constructor end");
 	}
 
-	// If btnOnTouch is between 0 to 7, one of the eight buttons is being
+	public int getSetN() {
+		return setN;
+	}
+
+	public void setUpperEnalbe(boolean b) {
+		upperEnable = b;
+		resetDisplayGroup();
+	}
+
+	public boolean getUpperEnalbe() {
+		return upperEnable;
+	}
+
+	public void setNumerEnalbe(boolean b) {
+		numberEnable = b;
+		resetDisplayGroup();
+	}
+
+	public boolean getNumberEnalbe() {
+		return numberEnable;
+	}
+
+	// If btnOnTouch is between 0 to setDisN-1, one of the setN buttons is being
 	// pressed down.
-	// Else none button is being pressed down.
+	// If btnOnTouch is setDisN, none button is being pressed down.
 	public void setBtnOnTouch(int b) {
 		btnOnTouch = b;
 		invalidate();
@@ -59,11 +95,12 @@ public class PadView extends View {
 		return btnOnTouch;
 	}
 
-	// If btnOnCast is between 0 to 7, one of the eight buttons is casting.
-	// Else none button is casting.
+	// If btnOnCast is between 0 to setDisN-1, one of the setN buttons is
+	// casting.
+	// If btnOnCast is setDisN, none button is casting.
 	public void setBtnOnCast(int b) {
 		btnOnCast = b;
-		if (btnOnCast == 8) {
+		if (btnOnCast == setN) {
 			invalidate();
 		}
 	}
@@ -72,11 +109,12 @@ public class PadView extends View {
 		return btnOnCast;
 	}
 
+	// get the distance between point1 and point2
 	public float getDistance(float x1, float y1, float x2, float y2) {
 		return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 	}
 
-	// get the angle of a point from pad center
+	// get the angle from point1 to point2
 	public float getAngle(float x1, float y1, float x2, float y2) {
 		// float toPoint = toCenter ? boardR : 0;
 		float angle = (float) Math.toDegrees(Math.atan2(y1 - y2, x1 - x2));
@@ -86,6 +124,7 @@ public class PadView extends View {
 		return angle;
 	}
 
+	// get the direction from ptPos to tPos
 	public MoveDirection getDirection() {
 		float ang = getAngle(tPos.y, tPos.x, ptPos.y, ptPos.x);
 		float dis = getDistance(tPos.y, tPos.x, ptPos.y, ptPos.x);
@@ -109,60 +148,6 @@ public class PadView extends View {
 		}
 	}
 
-	// PadButton defines one of eight buttons
-	private class PadButton {
-		public int num;
-		public Path path;
-		public TextPos textPos = new TextPos();
-		public String text;
-
-		public class TextPos {
-			public float x;
-			public float y;
-		}
-
-		public PadButton(Path p, int n, float tPosX, float tPosY) {
-			path = new Path(p);
-			num = n;
-			textPos.x = tPosX;
-			textPos.y = tPosY;
-		}
-
-		public void setText(String s) {
-			text = s;
-		}
-	}
-
-	public class BtnGroup {
-		public Vector<SubBtn> subBtn;
-
-		public BtnGroup(Object... p) {
-			subBtn = new Vector<SubBtn>();
-			for (int i = 0; i < p.length; i += 2) {
-				subBtn.add(new SubBtn((String) p[i], (Integer) p[i + 1]));
-			}
-		}
-
-		public String getStrByNum(int n) {
-			for (int i = 0; i < subBtn.size(); i++) {
-				if (subBtn.elementAt(i).bNum == n) {
-					return subBtn.elementAt(i).bString;
-				}
-			}
-			return null;
-		}
-
-		public class SubBtn {
-			public int bNum;
-			public String bString;
-
-			public SubBtn(String s, int i) {
-				bNum = i;
-				bString = s;
-			}
-		}
-	}
-
 	public enum MoveDirection {
 		LEFT, UP, RIGHT, DOWN
 	}
@@ -172,25 +157,164 @@ public class PadView extends View {
 		public float y;
 		public float dis;
 		public float ang;
-		public int btnNum;
+		public int btnId;
+		public String btnText;
+		public int corner;
 
 		public TouchPosition(float x, float y) {
 			this.x = x;
 			this.y = y;
 			dis = getDistance(x, y, boardR, boardR);
 			ang = getAngle(x, y, boardR, boardR);
-			btnNum = (dis > 50 && dis < 80) ? ((int) ang / 45) : (8);
+			float btnAng = (float) 360 / setN;
+			float offset = (float) ((setN % 2 == 0) ? (-90)
+					: (-90 - btnAng / 2));
+			btnId = (dis > navR && dis < boardR) ? (((int) ((ang - offset) / btnAng)) % setN)
+					: setN;
+			if (disp.disGroup.equals(Display.DisGroup.LetterL)) {
+				btnText = disp.letterLowerDisplay.sets.elementAt(btnOnCast)
+						.getTextById(btnId);
+			} else if (disp.disGroup.equals(Display.DisGroup.Number)) {
+				btnText = disp.numberDisplay.sets.elementAt(0).getTextById(
+						btnId);
+			} else if (disp.disGroup.equals(Display.DisGroup.LetterU)) {
+				btnText = disp.letterUpperDisplay.sets.elementAt(btnOnCast)
+						.getTextById(btnId);
+			} else {
+				btnText = "";
+			}
+			corner = (dis > boardR && (ang % 90) > corPad && (ang % 90) < (90 - corPad)) ? ((int) ang / 90 + 1)
+					: 0;
 		}
 	}
 
-	// used to get the position of the text on padButton
-	private float[] getTextPosition(float angle) {
+	//
+	private void setDisplayGroup() {
+		if (numberEnable == true) {
+			disp.disGroup = Display.DisGroup.Number;
+			setN = disp.numberDisplay.setN;
+		} else if (upperEnable == true) {
+			disp.disGroup = Display.DisGroup.LetterU;
+			setN = disp.letterUpperDisplay.setN;
+		} else {
+			disp.disGroup = Display.DisGroup.LetterL;
+			setN = disp.letterLowerDisplay.setN;
+		}
+	}
+
+	private void resetDisplayGroup() {
+		setDisplayGroup();
+		btnOnCast = setN;
+		btnOnTouch = setN;
+		invalidate();
+	}
+
+	// btnN must >= 1
+	private int calId(int sn, int bn, int setN, int btnN) {
+		return (sn + (bn - (btnN - 1) / 2) + setN) % setN;
+	}
+
+	private Path calPath(int id, float btnAng, float offset) {
+		Path p = new Path();
+		RectF rb = new RectF(0, 0, 2 * boardR, 2 * boardR);
+		RectF rv = new RectF(boardR - navR, boardR - navR, boardR + navR,
+				boardR + navR);
+		p.arcTo(rb, id * btnAng + offset + btnPad, btnAng - 2 * btnPad, true);
+		p.arcTo(rv, (id + 1) * btnAng + offset - btnPad, -btnAng + 2 * btnPad);
+		p.close();
+		return p;
+	}
+
+	private float[] calTextPosition(int id, float btnAng, float offset) {
 		float[] pos = new float[2];
+		double angle = ((double) id + 0.5) * btnAng + offset;
 		double phi = Math.toRadians(angle);
 		pos[0] = (float) Math.cos(phi) * (boardR + navR) / 2 + boardR;
 		pos[1] = (float) Math.sin(phi) * (boardR + navR) / 2 + boardR
 				+ textSize * 0.37f;
 		return pos;
+	}
+
+	// setInit constructs a BtnDisplay-type Vector used in a setDisplay class
+	// this Vector contains buttons showed in a cast view
+	private Vector<BtnDisplay> setInit(int sn, int setN, int btnN, String[] btn) {
+		Vector<BtnDisplay> btns = new Vector<BtnDisplay>();
+		for (int bn = 0; bn < btnN; bn++) {
+			int id = calId(sn, bn, setN, btnN);
+			float btnAng = (float) 360 / setN;
+			float offset = (float) ((setN % 2 == 0) ? (-90)
+					: (-90 - btnAng / 2));
+			btns.add(new BtnDisplay(id, calPath(id, btnAng, offset), btn[bn],
+					calTextPosition(id, btnAng, offset)));
+		}
+		return btns;
+	}
+
+	// setInit constructs a BtnDisplay-type Vector used in a setDisplay class
+	// this Vector contains buttons showed in a non-cast view
+	private Vector<BtnDisplay> groupSetInit(int setN, int[] btnN, String[][] btn) {
+		Vector<BtnDisplay> btns = new Vector<BtnDisplay>();
+		for (int sn = 0; sn < setN; sn++) {
+			float btnAng = (float) 360 / setN;
+			float offset = (float) ((setN % 2 == 0) ? (-90)
+					: (-90 - btnAng / 2));
+			String s = "";
+			for (int bn = 0; bn < btnN[sn]; bn++) {
+				s += btn[sn][bn];
+			}
+			btns.add(new BtnDisplay(sn, calPath(sn, btnAng, offset), s,
+					calTextPosition(sn, btnAng, offset)));
+		}
+		return btns;
+	}
+
+	private float[] calCornerBtnPosition(float a) {
+		float[] pos = new float[2];
+		double phi = Math.toRadians(a);
+		pos[0] = (float) Math.cos(phi) * boardR * 1.21f + boardR;
+		pos[1] = (float) Math.sin(phi) * boardR * 1.21f + boardR + textSize
+				* 0.37f * ((a < 180) ? 1 : -1);
+		// Log.d(DEBUG_TAG, "x:" + pos[0] + " y:" + pos[1]);
+		return pos;
+	}
+
+	private void DisplayInit() {
+		// lower letter group
+		for (int sn = 0; sn < BtnDefine.LetterLowerGroup.setN; sn++) {
+			disp.letterLowerDisplay.sets.add(new SetDisplay(setInit(sn,
+					BtnDefine.LetterLowerGroup.setN,
+					BtnDefine.LetterLowerGroup.btnN[sn],
+					BtnDefine.LetterLowerGroup.btn[sn])));
+		}
+		disp.letterLowerDisplay.sets.add(new SetDisplay(
+				groupSetInit(BtnDefine.LetterLowerGroup.setN,
+						BtnDefine.LetterLowerGroup.btnN,
+						BtnDefine.LetterLowerGroup.btn)));
+		disp.letterLowerDisplay.setN = BtnDefine.LetterLowerGroup.setN;
+
+		// upper letter group
+		for (int sn = 0; sn < BtnDefine.LetterUpperGroup.setN; sn++) {
+			disp.letterUpperDisplay.sets.add(new SetDisplay(setInit(sn,
+					BtnDefine.LetterUpperGroup.setN,
+					BtnDefine.LetterUpperGroup.btnN[sn],
+					BtnDefine.LetterUpperGroup.btn[sn])));
+		}
+		disp.letterUpperDisplay.sets.add(new SetDisplay(
+				groupSetInit(BtnDefine.LetterUpperGroup.setN,
+						BtnDefine.LetterUpperGroup.btnN,
+						BtnDefine.LetterUpperGroup.btn)));
+		disp.letterUpperDisplay.setN = BtnDefine.LetterUpperGroup.setN;
+
+		// number group
+		disp.numberDisplay.sets.add(new SetDisplay(groupSetInit(
+				BtnDefine.NumberGroup.setN, BtnDefine.NumberGroup.btnN,
+				BtnDefine.NumberGroup.btn)));
+		disp.numberDisplay.setN = BtnDefine.NumberGroup.setN;
+
+		disp.cornerBtnRD = new CornerBtn("123", calCornerBtnPosition(45));
+		disp.cornerBtnLD = new CornerBtn("S", calCornerBtnPosition(135));
+		disp.cornerBtnRU = new CornerBtn("¡û", calCornerBtnPosition(315));
+		setDisplayGroup();
 	}
 
 	private void init() {
@@ -201,73 +325,59 @@ public class PadView extends View {
 		textPaint.setColor(0xffffffff);
 		textPaint.setTextAlign(Paint.Align.CENTER);
 		textPaint.setTextSize(textSize);
-		btnOnCast = 8;
-		btnOnTouch = 8;
-		btnGroup[0] = new BtnGroup("h", 1, "i", 0, "j", 7);
-		btnGroup[1] = new BtnGroup("k", 2, "l", 1, "m", 0);
-		btnGroup[2] = new BtnGroup("n", 3, "o", 2, "p", 1);
-		btnGroup[3] = new BtnGroup("q", 4, "r", 3, "s", 2);
-		btnGroup[4] = new BtnGroup("t", 3, "u", 4, "v", 5);
-		btnGroup[5] = new BtnGroup("w", 4, "x", 5, "y", 6, "z", 7);
-		btnGroup[6] = new BtnGroup("a", 5, "b", 6, "c", 7, "d", 0);
-		btnGroup[7] = new BtnGroup("e", 6, "f", 7, "g", 0);
-		Path p = new Path();
-		RectF r = new RectF(0, 0, 2 * boardR, 2 * boardR);
-		RectF r2 = new RectF(boardR - navR, boardR - navR, boardR + navR,
-				boardR + navR);
-		float[] textPos;
-		PadButton pBtn;
-		for (int i = 0; i < 8; i++) {
-			padButtons.add(new Vector<PadButton>());
-			for (int j = 0; j < btnGroup[i].subBtn.size(); j++) {
-				int bn = btnGroup[i].subBtn.elementAt(j).bNum;
-				String bs = btnGroup[i].subBtn.elementAt(j).bString;
-				p.reset();
-				p.arcTo(r, bn * 45 + btnPad, 45 - 2 * btnPad, true);
-				p.arcTo(r2, (bn + 1) * 45 - btnPad, -45 + 2 * btnPad);
-				p.close();
-				textPos = getTextPosition((float) (22.5 + bn * 45));
-				pBtn = new PadButton(p, bn, textPos[0], textPos[1]);
-				pBtn.setText(bs);
-				padButtons.elementAt(i).add(pBtn);
-			}
-		}
-		padButtons.add(new Vector<PadButton>());
-		for (int i = 0; i < 8; i++) {
-			p.reset();
-			p.arcTo(r, i * 45 + btnPad, 45 - 2 * btnPad, true);
-			p.arcTo(r2, (i + 1) * 45 - btnPad, -45 + 2 * btnPad);
-			p.close();
-			textPos = getTextPosition((float) (22.5 + i * 45));
-			pBtn = new PadButton(p, i, textPos[0], textPos[1]);
-			String bs = new String();
-			for (int j = 0; j < btnGroup[i].subBtn.size(); j++) {
-				bs += btnGroup[i].subBtn.elementAt(j).bString;
-			}
-			pBtn.setText(bs);
-			padButtons.elementAt(8).add(pBtn);
-		}
+		cornerEnablePaint.setColor(0xff000000);
+		cornerEnablePaint.setTextAlign(Paint.Align.CENTER);
+		cornerEnablePaint.setTextSize(textSize);
+		cornerUnenablePaint.setColor(0xff999999);
+		cornerUnenablePaint.setTextAlign(Paint.Align.CENTER);
+		cornerUnenablePaint.setTextSize(textSize);
+		upperEnable = false;
+		numberEnable = false;
+		DisplayInit();
+		btnOnCast = setN;
+		btnOnTouch = setN;
+	}
 
+	private void drawSet(Vector<SetDisplay> sets, Canvas c) {
+		BtnDisplay btn;
+		int setId = disp.disGroup.equals(Display.DisGroup.Number) ? 0
+				: btnOnCast;
+		for (int i = 0; i < sets.elementAt(setId).btnN; i++) {
+			btn = sets.elementAt(setId).btns.elementAt(i);
+			c.drawPath(
+					btn.btnPath,
+					(btnOnCast >= 0 && btnOnCast <= (setN - 1) && btnOnTouch == btn.btnId) ? btnPaintDown
+							: btnPaintNormal);
+			c.drawText(btn.btnText, btn.textPos.x, btn.textPos.y, textPaint);
+		}
 	}
 
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		Log.d(DEBUG_TAG, "testview ondraw start");
-		PadButton pBtn;
-		for (int i = 0; i < padButtons.elementAt(btnOnCast).size(); i++) {
-			pBtn = padButtons.elementAt(btnOnCast).elementAt(i);
-			canvas.drawPath(
-					pBtn.path,
-					(btnOnCast >= 0 && btnOnCast <= 7 && pBtn.num == btnOnTouch) ? btnPaintDown
-							: btnPaintNormal);
-			canvas.drawText(pBtn.text, pBtn.textPos.x, pBtn.textPos.y,
-					textPaint);
+		Log.d(DEBUG_TAG, "padview ondraw start");
+		Log.d(DEBUG_TAG, "btnoncast:" + getBtnOnCast() + " btnontouch:"
+				+ getBtnOnTouch());
+		if (disp.disGroup.equals(Display.DisGroup.Number)) {
+			drawSet(disp.numberDisplay.sets, canvas);
+		} else if (disp.disGroup.equals(Display.DisGroup.LetterL)) {
+			drawSet(disp.letterLowerDisplay.sets, canvas);
+		} else if (disp.disGroup.equals(Display.DisGroup.LetterU)) {
+			drawSet(disp.letterUpperDisplay.sets, canvas);
 		}
-		Log.d(DEBUG_TAG, "testview ondraw end");
+		canvas.drawText(disp.cornerBtnRD.btnText, disp.cornerBtnRD.textPos.x,
+				disp.cornerBtnRD.textPos.y,
+				(numberEnable == true) ? cornerEnablePaint
+						: cornerUnenablePaint);
+		canvas.drawText(disp.cornerBtnLD.btnText, disp.cornerBtnLD.textPos.x,
+				disp.cornerBtnLD.textPos.y,
+				(upperEnable == true) ? cornerEnablePaint : cornerUnenablePaint);
+		canvas.drawText(disp.cornerBtnRU.btnText, disp.cornerBtnRU.textPos.x,
+				disp.cornerBtnRU.textPos.y, cornerEnablePaint);
+		Log.d(DEBUG_TAG, "padview ondraw end");
 	}
 
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		Log.d(DEBUG_TAG, "testview onmeasure start");
+		Log.d(DEBUG_TAG, "padview onmeasure start");
 		int desiredWidth = ((int) boardR) * 2;
 		int desiredHeight = ((int) boardR) * 2;
 
@@ -306,7 +416,7 @@ public class PadView extends View {
 		// MUST CALL THIS
 		setMeasuredDimension(width, height);
 
-		Log.d(DEBUG_TAG, "testview onmeasure end");
+		Log.d(DEBUG_TAG, "padview onmeasure end");
 	}
 
 }
