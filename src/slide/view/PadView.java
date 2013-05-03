@@ -20,7 +20,7 @@ import android.view.View;
 import com.slide.R;
 
 public class PadView extends View {
-	private final String DEBUG_TAG = "mytest";
+	private static final String DEBUG_TAG = "mytest";
 	public float boardR = 80.0f;
 	public float navR = 50.0f;
 	private float btnPad = 1.0f;

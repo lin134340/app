@@ -1,7 +1,13 @@
 package slide;
 
-import com.slide.R;
+import java.io.IOException;
+import java.io.InputStream;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import slide.view.PadView;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.Selection;
@@ -13,8 +19,9 @@ import android.view.View.OnTouchListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
-import slide.view.PadView;
+import com.slide.R;
 
 public class MainActivity extends Activity {
 
@@ -22,17 +29,35 @@ public class MainActivity extends Activity {
 	private int titleAndStatusHeight;
 	private PadView pad;
 	private EditText txt;
+	private TextView py;
+	private TextView selchar;
 	private Button btn1;
+	private Button btn2;
 	private TouchState touchState;
+	private JSONObject py2u;
+	//private String tempstr;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(DEBUG_TAG, "oncreate before setContentView");
 		setContentView(R.layout.activity_main);
 		Log.d(DEBUG_TAG, "oncreate after setContentView");
+
+		try {
+			py2u = new JSONObject(loadJSONFromAsset());
+			//tempstr = py2u.getJSONArray("a").getString(0);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		pad = (PadView) findViewById(R.id.pad);
 		txt = (EditText) findViewById(R.id.txt);
 		btn1 = (Button) findViewById(R.id.btn1);
+		btn2 = (Button) findViewById(R.id.btn2);
+		py = (TextView) findViewById(R.id.py);
+		selchar = (TextView) findViewById(R.id.selchar);
+		//btn2.setText(tempstr);
 		setTouchState(TouchState.NOTOUCH);
 
 		btn1.setOnClickListener(new OnClickListener() {
@@ -116,12 +141,12 @@ public class MainActivity extends Activity {
 				} else if (touchState.equals(TouchState.CAST)) {
 					if (action == MotionEvent.ACTION_UP) {
 						// Log.d(DEBUG_TAG, "123123" + pad.tPos.btnText);
-						insertChr(pad.tPos.btnText);
+						insertPY(pad.tPos.btnText);
 						pad.setBtnOnCast(pad.getSetN());
 						setTouchState(TouchState.NOTOUCH);
 					} else if (action == MotionEvent.ACTION_MOVE) {
 						if (pad.tPos.dis < pad.navR) {
-							insertChr(pad.ptPos.btnText);
+							insertPY(pad.ptPos.btnText);
 							pad.setBtnOnCast(pad.getSetN());
 							setTouchState(TouchState.WAITNEXTBTN);
 						} else if (pad.tPos.dis > pad.navR
@@ -158,13 +183,60 @@ public class MainActivity extends Activity {
 
 	}
 
-	public void deleteChr() {
-		int start = txt.getSelectionStart();
-		int end = txt.getSelectionEnd();
-		txt.getText().delete(
-				(start == end && start != 0) ? (start - 1) : start, end);
+	public String loadJSONFromAsset() {
+		String json = null;
+		try {
+			InputStream is = getAssets().open("PinYinToUnicode.json");
+			int size = is.available();
+			byte[] buffer = new byte[size];
+			is.read(buffer);
+			is.close();
+			json = new String(buffer, "UTF-8");
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			return null;
+		}
+		return json;
 	}
 
+	// if py is not empty, delete py first.
+	// if py is empty, delete text.
+	public void deleteChr() {
+		CharSequence pySeq = py.getText();
+		if (pySeq.length() != 0) {
+			py.setText(pySeq.subSequence(0, pySeq.length() - 1));
+			py2selchar();
+		} else {
+			int start = txt.getSelectionStart();
+			int end = txt.getSelectionEnd();
+			txt.getText().delete(
+					(start == end && start != 0) ? (start - 1) : start, end);
+		}
+	}
+
+	// append a char to py
+	public void insertPY(String s) {
+		CharSequence pySeq = py.getText() + s;
+		py.setText(pySeq);
+		py2selchar();
+	}
+
+	// transform py to selchar
+	public void py2selchar() {
+		try {
+			String pySeq = (String) py.getText();
+			JSONArray chrArray = py2u.getJSONArray(pySeq);
+			String tempstr = "";
+			for (int i = 0; i < chrArray.length(); i++) {
+				tempstr += chrArray.getString(i);
+			}
+			selchar.setText(tempstr);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// insert a char to text
 	public void insertChr(String s) {
 		int start = txt.getSelectionStart();
 		int end = txt.getSelectionEnd();
